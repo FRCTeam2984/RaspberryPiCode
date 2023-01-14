@@ -14,11 +14,12 @@ while True:
     ret, frame = capture.read()
     cv2.imshow("Output", frame)
     cv2.waitKey(1)
-    frame = imutils.resize(frame, width=600)
+    # frame = imutils.resize(frame, width=600)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     apriltag.DetectorOptions(families="tag16h5")
     detector = apriltag.Detector()
     detections = detector.detect(frame)
     if (detections):
         if (detections[0].tag_id <= 8):
-            print(detections)
+            if (detections[0].decision_margin >= 10):
+                print(detections)
