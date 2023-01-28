@@ -33,61 +33,37 @@ while True:
     #upper_mask = cv2.inRange(frame, lower2, upper2)
      
     #full_mask = lower_mask + upper_mask;
-    kernel = np.ones((2, 2), np.uint8)
+    pos_of_cube_rel_center = [640/2, 480/2]
+    
+    kernel = np.ones((4, 4), np.uint8)
     mask = cv2.inRange(frame, (110, 80, 0), (130, 255, 255))
     mask_result = cv2.bitwise_and(frame_copy, frame_copy, mask=mask)
     eroded_result = cv2.erode(mask, kernel, cv2.BORDER_REFLECT)
     inverted_result = cv2.bitwise_not(eroded_result)
     #h, s, v = frame[:, :, 0], frame[:, :, 1], frame[:, :, 2]
-    #image = cv2.circle(image, (x,y), radius=0, color=(0, 0, 255), thickness=-1)
-    retval, threshold = cv2.threshold(inverted_result, 200, 255, cv2.THRESH_BINARY_INV)
-    params = cv2.SimpleBlobDetector_Params()
-
-    # Change thresholds
-    params.minThreshold = 10;
-    params.maxThreshold = 400;
-     
-    # Filter by Area.
-    params.filterByArea = True
-    params.minArea = 1500
-     
-    # Filter by Circularity
-    params.filterByCircularity = False
-    params.minCircularity = 0.1
-     
-    # Filter by Convexity
-    params.filterByConvexity = False
-    params.minConvexity = 0.87
-     
-    # Filter by Inertia
-    params.filterByInertia = False
-    params.minInertiaRatio = 0.01
-
-    detector = cv2.SimpleBlobDetector_create(params)
-
-    # Set up the detector with default parameters.
-    #detector = cv2.SimpleBlobDetector()
-
-    # Detect blobs.
-    keypoints = detector.detect(inverted_result)
-    print(keypoints)
-    # Draw detected blobs as red circles.
-    # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
-    im_with_keypoints = cv2.drawKeypoints(inverted_result, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
     # Show keypoints
-    cv2.imshow("Keypoints", im_with_keypoints)
-    # calculate moments of binary image
-    # M = cv2.moments(thresh)
-    # print(M)
-    # calculate x,y coordinate of center
-    #fix division by 0 error (IMPORTANT)
-    # cX = int(M["m10"] / M["m00"])
-    # cY = int(M["m01"] / M["m00"])
+    contours, hier = cv2.findContours(eroded_result,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    #print(contours)
+    highest_cnt_area = 0
+    highest_cnt = None
+    for cnt in contours:
+        if cv2.contourArea(cnt) > highest_cnt_area and cv2.contourArea(cnt) > 1000:
+            highest_cnt = cnt
+            # print(cnt)
+            #cv2.drawContours(inverted_result,[cnt],0,(0,255, 0),2)
+            #cv2.drawContours(inverted_result,[cnt],0,255,-1)
     
-    # put text and highlight the center
-    # cv2.circle(inverted_result, (cX, cY), 5, (155, 155, 155), -1)
-    # cv2.putText(inverted_result, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (155, 155, 155), 2)
+    M = cv2.moments(highest_cnt)
+    highest_cnt_area = cv2.contourArea(cnt)
+    if M['m00'] != 0:
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        cv2.drawContours(frame, [highest_cnt], -1, (0, 255, 0), 2)
+        cv2.circle(frame, (cx, cy), 7, (0,255, 0), -1)
+    pos_of_cube_rel_center = [-640/2 + cx, 480/2 - cy]
     
-    # cv2.imshow('result', inverted_result)
+    cv2.imshow("Frame", frame)
+    cv2.imshow("Keypoints", inverted_result)
+    
+    print(pos_of_cube_rel_center)
     cv2.waitKey(1)
