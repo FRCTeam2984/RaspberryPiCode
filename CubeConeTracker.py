@@ -93,22 +93,22 @@ def find_cone_pos(frame):
         #print(diff)
         angle = math.atan2(diff[1], diff[0])
         angle_deg = angle / math.pi * 180
+        extLeft = tuple(highest_cnt[highest_cnt[:, :, 0].argmin()][0])
+        extRight = tuple(highest_cnt[highest_cnt[:, :, 0].argmax()][0])
+        extTop = tuple(highest_cnt[highest_cnt[:, :, 1].argmin()][0])
+        extBot = tuple(highest_cnt[highest_cnt[:, :, 1].argmax()][0])
+        extAll = tuple(highest_cnt[highest_cnt[0, 0, 0].argmax()][0])
+        cv2.circle(frame, extLeft, 4, (0,255, 255), -1)
+        cv2.circle(frame, extRight, 4, (0,255, 255), -1)
+        cv2.circle(frame, extTop, 4, (0,255, 255), -1)
+        cv2.circle(frame, extBot, 4, (0,255, 255), -1)
+        cv2.circle(frame, extAll, 6, (255,255, 255), -1)
         # this ratio should be > 1 if the width is greater than the height and < 1 if height is greater than 1
         if wh_ratio > 1:
             #print('fallen down and pointing with 45 degrees of to the left or right of the camera')
-            #left_vector = [math.sqrt(w * h), 0]
-            #left_vector = left_vector/np.linalg.norm(left_vector)
-            #cone_vector = [w,h]
-            #cone_vector = cone_vector/np.linalg.norm(cone_vector)
-            #dt_product = np.dot(left_vector, cone_vector)
-            #dt_product = left_vector[0] * cone_vector[0] + left_vector[1] * cone_vector[1]
-            #print(cx, cy, x, y)
-            #print(dt_product)
-            #angle = math.acos(diff[0])
             pass
         else:
             #print('standing up or fallen down but within 45 degrees of yaw of being pointed away or at the camera')
-            #angle = math.atan2(diff[1], diff[0])
             pass
         cv2.line(frame, (cx, cy), center, (0,0, 255), 2)
         #cv2.line(frame, (cx, cy), (int(cx + math.cos(angle) * 40), int(cy + math.sin(angle) * 40)), (0,0, 255), 2)
