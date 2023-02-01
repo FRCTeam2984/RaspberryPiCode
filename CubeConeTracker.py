@@ -90,30 +90,30 @@ def find_cone_pos(frame):
         centroid = (cx, cy)
         diff = (center[0]-centroid[0], center[1] - centroid[1])
         diff = diff/np.linalg.norm(diff)
-        #print(diff)
         angle = math.atan2(diff[1], diff[0])
-        angle_deg = angle / math.pi * 180
         extLeft = tuple(highest_cnt[highest_cnt[:, :, 0].argmin()][0])
         extRight = tuple(highest_cnt[highest_cnt[:, :, 0].argmax()][0])
         extTop = tuple(highest_cnt[highest_cnt[:, :, 1].argmin()][0])
         extBot = tuple(highest_cnt[highest_cnt[:, :, 1].argmax()][0])
-        extAll = tuple(highest_cnt[highest_cnt[0, 0, 0].argmax()][0])
-        cv2.circle(frame, extLeft, 4, (0,255, 255), -1)
-        cv2.circle(frame, extRight, 4, (0,255, 255), -1)
-        cv2.circle(frame, extTop, 4, (0,255, 255), -1)
-        cv2.circle(frame, extBot, 4, (0,255, 255), -1)
-        cv2.circle(frame, extAll, 6, (255,255, 255), -1)
-        # this ratio should be > 1 if the width is greater than the height and < 1 if height is greater than 1
-        if wh_ratio > 1:
-            #print('fallen down and pointing with 45 degrees of to the left or right of the camera')
+        exts = [extLeft, extRight, extTop, extBot]
+        largest_ext = extLeft
+        for ext in exts:
+            if get_vec_mag(np.subtract(ext, centroid)) > get_vec_mag(np.subtract(largest_ext, centroid)):
+                largest_ext = ext
+        cv2.circle(frame, largest_ext, 8, (255,0, 0), -1)
+        rel_largest_ext = np.subtract(largest_ext, centroid)
+        angle = math.atan2(rel_largest_ext[1], rel_largest_ext[0])
+        # adjust the wh_ratio filter for when the camera is adjusted
+        if wh_ratio < .8 and angle < -(math.pi/6 + math.pi /4) and angle > -(math.pi/3 + math.pi /4):
+            print('standing up')
             pass
         else:
-            #print('standing up or fallen down but within 45 degrees of yaw of being pointed away or at the camera')
+            print('fallen down')
             pass
-        cv2.line(frame, (cx, cy), center, (0,0, 255), 2)
-        #cv2.line(frame, (cx, cy), (int(cx + math.cos(angle) * 40), int(cy + math.sin(angle) * 40)), (0,0, 255), 2)
-        print(angle_deg)
-            
+        #cv2.line(frame, (cx, cy), center, (0,0, 255), 2)
+        cv2.line(frame, (cx, cy), (int(cx + math.cos(angle) * 30), int(cy + math.sin(angle) * 30)), (255,0, 0), 2)
+        print(angle / math.pi * 180,  " " , wh_ratio)
+        #print(wh_ratio)
             
     cv2.imshow("Cone Result", inverted_result)
     
@@ -125,6 +125,8 @@ def find_cone_pos(frame):
         #sender.send_cone_data([True, pos_of_rel_center[0], pos_of_rel_center[1]])
         return centroid
 
+def get_vec_mag(vec):
+    return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
 # Begin repeated capture of video
 while True:
     ret, frame = capture.read()
