@@ -5,7 +5,13 @@ import numpy as np
 import cv2
 import imutils
 import math
-  
+from networktables import NetworkTables
+
+# Network tables
+# change server IP for the robot when added to robot, rn the server IP i s just the local address for testing
+NetworkTables.initialize(server="127.0.0.1")
+sd = NetworkTables.getTable("SmartDashboard")
+
 # Begin writing varibles that do not change throughout varibles
 
 capture = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
@@ -126,11 +132,18 @@ def find_cone_pos(frame):
         print(centered_centroid)
         if centroid == None:
             #print('Cube not on screen')
+            sd.putValue("cone_there", False)
             return None
         else:
+            sd.putValue("cone_there", True)
+            sd.putValue("cone_x", centered_centroid[0])
+            sd.putValue("cone_y", centered_centroid[1])
+            sd.putValue("cone_is_upright", is_upright)
+            sd.putValue("cone_angle", angle)
+            sd.putValue("cone_ready", centered_and_close)
             #print(pos_of_rel_center)
             #sender.send_cone_data([True, pos_of_rel_center[0], pos_of_rel_center[1]])
-            return [centroid, is_upright, angle, centered_and_close] # angle in radians
+            return [centered_centroid, is_upright, angle, centered_and_close] # angle in radians
 
 def get_vec_mag(vec):
     return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
