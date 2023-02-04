@@ -23,7 +23,7 @@ capture.set(cv2.CAP_PROP_FRAME_HEIGHT, capture_dim[1])
 def find_cube_pos(frame):
     frame_copy = frame.copy()
 
-    pos_of_cube_rel_center = None
+    centroid = None
     
     kernel = np.ones((3, 3), np.uint8)
     mask = cv2.inRange(frame, (110, 60, 0), (135, 255, 255))
@@ -65,18 +65,17 @@ def find_cube_pos(frame):
             pass
             #print("cone NOT ready for next stage")
         #print(centered_centroid)
-        if centroid == None:
-            print('Cube not on screen')
-            sd.putValue("cube_there", False)
-            return None
-        else:
-            sd.putValue("cube_there", True)
-            sd.putValue("cube_x", centered_centroid[0])
-            sd.putValue("cube_y", centered_centroid[1])
-            sd.putValue("cube_ready", centered_and_close)
-            #print(pos_of_rel_center)
-            #sender.send_cone_data([True, pos_of_rel_center[0], pos_of_rel_center[1]])
-            return [centered_centroid, centered_and_close] # angle in radians
+    if centroid == None:
+        #print('Cube not on screen')
+        sd.putValue("cube_there", False)
+        return None
+    else:
+        #print('Cube on screen')
+        sd.putValue("cube_there", True)
+        sd.putValue("cube_x", centered_centroid[0])
+        sd.putValue("cube_y", centered_centroid[1])
+        sd.putValue("cube_ready", centered_and_close)
+        return [centered_centroid, centered_and_close]
 
 
 
@@ -154,20 +153,19 @@ def find_cone_pos(frame):
             #print("cone NOT ready for next stage")
             pass
         #print(centered_centroid)
-        if centroid == None:
-            print('Cube not on screen')
-            sd.putValue("cone_there", False)
-            return None
-        else:
-            sd.putValue("cone_there", True)
-            sd.putValue("cone_x", centered_centroid[0])
-            sd.putValue("cone_y", centered_centroid[1])
-            sd.putValue("cone_is_upright", is_upright)
-            sd.putValue("cone_angle", angle)
-            sd.putValue("cone_ready", centered_and_close)
-            #print(pos_of_rel_center)
-            #sender.send_cone_data([True, pos_of_rel_center[0], pos_of_rel_center[1]])
-            return [centered_centroid, is_upright, angle, centered_and_close] # angle in radians
+    if centroid == None:
+        #print('Cone not on screen')
+        sd.putValue("cone_there", False)
+        return None
+    else:
+        #print('Cone on screen')
+        sd.putValue("cone_there", True)
+        sd.putValue("cone_x", centered_centroid[0])
+        sd.putValue("cone_y", centered_centroid[1])
+        sd.putValue("cone_is_upright", is_upright)
+        sd.putValue("cone_angle", angle)
+        sd.putValue("cone_ready", centered_and_close)
+        return [centered_centroid, is_upright, angle, centered_and_close] # angle in radians
 
 def get_vec_mag(vec):
     return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
