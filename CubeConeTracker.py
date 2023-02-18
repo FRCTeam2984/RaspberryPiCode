@@ -15,7 +15,7 @@ sd = NetworkTables.getTable("SmartDashboard")
 # Begin writing varibles that do not change throughout varibles
 
 capture = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
-capture_dim = [capture.get(cv2.CAP_PROP_FRAME_WIDTH) / 2, capture.get(cv2.CAP_PROP_FRAME_HEIGHT) / 2]
+capture_dim = [capture.get(cv2.CAP_PROP_FRAME_WIDTH), capture.get(cv2.CAP_PROP_FRAME_HEIGHT)]
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, capture_dim[0])
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, capture_dim[1])
 # capture.set(15, -8)
@@ -172,6 +172,7 @@ def get_vec_mag(vec):
 # Begin repeated capture of video
 while True:
     ret, frame = capture.read()
+    cv2.imshow('Reg Frame', frame)
     framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     find_cube_pos(framehsv)
     find_cone_pos(framehsv)
