@@ -171,7 +171,7 @@ def find_cone_pos(frame):
 
 def apriltag_detection(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    apriltag.DetectorOptions(families="tag16h5")
+    apriltag.DetectorOptions(families="tag16h5", nthreads="4")
     detector = apriltag.Detector()
     detections = detector.detect(gray)
     if (detections):
@@ -190,7 +190,6 @@ def apriltag_detection(frame):
                 print(pose[0][2][3])
                 sd.putValue("tag_read", tag.tag_id)
                 sd.putValue("Distance", pose[0][2][3])
-    cv2.imshow("Grayscale", gray)
     cv2.waitKey(1)
     
     
